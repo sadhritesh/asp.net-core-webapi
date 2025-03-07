@@ -47,16 +47,34 @@ namespace WebApplication2.Controllers
 
         [HttpPut("{id}")]
 
-        public async Task<ActionResult<Student>> UpdateStudent(Student student, int id)
+        public async Task<ActionResult<Student>> UpdateStudent(Student updatedStudent, int id)
         {
-            if (student.Id != id)
-            {
-                return BadRequest();
-            }
-            context.Entry(student).State = EntityState.Modified;
-            await context.SaveChangesAsync();
+            /* if (student.Id != id)
+             {
+                 return BadRequest();
+             }
+             context.Entry(student).State = EntityState.Modified;
+             await context.SaveChangesAsync();
 
-            return Ok(student);
+             return Ok(student);*/
+
+            var existingStudent = await context.Students.FindAsync(id);
+
+            if (existingStudent == null)
+            {
+                return NotFound(); // Return 404 if the student doesn't exist
+            }
+
+            // Manually update properties
+            existingStudent.StudentName = updatedStudent.StudentName;
+            existingStudent.StudentGender = updatedStudent.StudentGender;
+            existingStudent.Age = updatedStudent.Age;
+            existingStudent.Standard = updatedStudent.Standard;
+            existingStudent.FatherName = updatedStudent.FatherName;
+
+            await context.SaveChangesAsync(); // Save changes to the database
+
+            return Ok(existingStudent);
         }
 
         [HttpDelete("{id}")]
